@@ -73,16 +73,9 @@
     <label for="">Address</label>
     <input type="text" name='address'>
     <label for="">Phone</label>
-    <input type="tel" pattern="+[0-9]{11}" name='phone'>
-    {% for field in form %}
-    <label for = "">{{field.label}}</label>
-    <div>{{field}}</div>
-    {% if field.errors %}
-    <p>{{field.errors}}</p>
-    {% endif %}
-    {% endfor %}
+    <input type="tel" pattern="+[0-9]{11}" name='phone'>  
     <button type="submit" name='adduser'>Create</button>
-    </div>
+     </div>
 </form>
 {% endblock content %}
 </body>
