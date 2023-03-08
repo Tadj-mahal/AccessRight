@@ -8,6 +8,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from .models import User
 from .forms import UserCreateForm, UserUpdateForm
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 class List(TemplateView):
@@ -111,16 +112,15 @@ class RegisterFormView(FormView):
 
 def updateUser(request, pk):
 
-    user = User.objects.get(id = pk)
-    form = UserUpdateForm(instance = user)
+    user = get_object_or_404(User, id = pk)
+    if (request.user.position != 'director' and request.user.position != 'associate director'):
+        return redirect('/')
+    form = UserUpdateForm(request.POST or None, instance = user)
 
-    if request.method == 'POST':
-        form = UserUpdateForm(data = request.POST, instance = request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('/')
-
-    context = {'form': form}
+    if form.is_valid():
+        form.save()
+        return redirect('/')
+    context = {'form': form}    
     return render(request, 'update.html', context)
 
 def deleteUser(request, pk):
