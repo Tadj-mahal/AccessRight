@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.http import HttpResponseRedirect
@@ -7,7 +7,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from .models import User
-from .forms import UserCreateForm
+from .forms import UserCreateForm, UserUpdateForm
 # Create your views here.
 
 class List(TemplateView):
@@ -22,53 +22,56 @@ class List(TemplateView):
         
     def post(self, request):
        template = "main_entry.html" 
-       if 'search' in request.POST:
-           template = "result.html"  
-           query = request.POST['search']
-           result_list = User.objects.filter(id = query)
-           if result_list.count() != 0:
-    	       	context = {
-    	       		'result_list': result_list,
-    	       		'query': query,
-    	       	}
-           else:
-           		context = {
-           			'empty': "Nothing founded. 404!",
-           			'query': query,
-           		}
+       # if 'search' in request.POST:
+       #     template = "result.html"  
+       #     query = request.POST['search']
+       #     result_list = User.objects.filter(id = query)
+       #     if result_list.count() != 0:
+    	  #      	context = {
+    	  #      		'result_list': result_list,
+    	  #      		'query': query,
+    	  #      	}
+       #     else:
+       #     		context = {
+       #     			'empty': "Nothing founded. 404!",
+       #     			'query': query,
+       #     		}
        
 
-       if 'deluser' in request.POST:
-           query = request.POST['deluser']
-           User.objects.filter(id = query).delete()
-           users = User.objects.all()
-           context = {
-                    'users': users,
-                } 
+       # if 'deluser' in request.POST:
+       #     query = request.POST['deluser']
+       #     User.objects.filter(id = query).delete()
+       #     users = User.objects.all()
+       #     context = {
+       #              'users': users,
+       #          } 
  
-       if 'upduser' in request.POST:
-           query = request.POST['upduser']
-           usr = User().objects.get(id = query)
-           usr.address = request.POST.get("address")
-           usr.phone  = request.POST.get("phone")
-           usr.save()
-           users = User.objects.all()
-           context = {
-            'users': users,
-            }
+       # if 'upduser' in request.POST:
+       #     query = request.POST['upduser']
+       #     usr = User().objects.get(id = query)
+       #     usr.address = request.POST.get("address")
+       #     usr.phone  = request.POST.get("phone")
+       #     usr.save()
+       #     users = User.objects.all()
+       #     context = {
+       #      'users': users,
+       #      }
        return render(request, template, context)
 
 class MainView(TemplateView):
 	template_name = "main_entry.html"
 
 	def get(self, request):
-		if request.user.is_authenticated:
+		# if request.user.is_authenticated:
 			users = User.objects.all()
 			ctx = {}
 			ctx['users'] = users
 			return render(request, self.template_name, ctx)
-		else:
-			return render(request, self.template_name, {})
+		# else:
+  #           users = User.objects.all()
+  #           ctx = {}
+  #           ctx['users'] = users
+  #           return render(request, self.template_name, ctx)
 
 
 class LoginFormView(FormView):
@@ -105,3 +108,27 @@ class RegisterFormView(FormView):
     def form_invalid(self, form):
 
         return super(RegisterFormView, self).form_invalid(form)
+
+def updateUser(request, pk):
+
+    user = User.objects.get(id = pk)
+    form = UserUpdateForm(instance = user)
+
+    if request.method == 'POST':
+        form = UserUpdateForm(data = request.POST, instance = request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+
+    context = {'form': form}
+    return render(request, 'update.html', context)
+
+def deleteUser(request, pk):
+    user = User.objects.get(id=pk)
+
+    if request.method == "POST":
+        user.delete()
+        return redirect('/')
+
+    context = {'item':user}
+    return render(request, 'delete.html', context)

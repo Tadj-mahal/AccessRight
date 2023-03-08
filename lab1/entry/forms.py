@@ -9,4 +9,10 @@ class UserCreateForm(UserCreationForm):
 		model = User
 		fields = ("username", "password1", "password2", "first_name", 
 			"last_name", "position", "address", "phone")
+
+class UserUpdateForm(ModelForm):
+	class Meta:
+		model = User
+		fields = ("first_name", 
+			"last_name", "position", "address", "phone")
 	

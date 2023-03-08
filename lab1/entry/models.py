@@ -12,4 +12,6 @@ class User(AbstractUser):
 	address = models.CharField(max_length = 50, default='')
 	phone = models.CharField(max_length = 14, default='')
 
+	def __str__(self):
+		return self.username
 # Create your models here.
