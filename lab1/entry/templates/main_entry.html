@@ -13,20 +13,19 @@
 			margin-right: 20px;
 			padding: 10px 50px;
 			color: black;
+			font-size: 16px;
 		}
 
 		a:hover
 		{
-			color: white;
-			background: blue;
-			border: 1px solid blue;
+			background-image: linear-gradient(to right, #29323c, #485563, #2b5876, #4e4376);
+    		box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75);
 		}
 	</style>
 
 {% if user.is_authenticated %}
 <a href="logout">logout ({{user.username}})</a>
 {% else %}
-<a href="register">sign up</a>
 <a href="login">login</a>
 {% endif %}
 
@@ -39,20 +38,53 @@
         <td>Position</td>
         <td>Address</td>
         <td>Phone</td>
-        <td>Email</td>
+        <td>Username</td>
     </tr>
     {% for user in users %}
     <tr>
         <td>{{user.pk}}</td>
-        <td>{{user.name}}</td>
-        <td>{{user.surname}}</td>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
         <td>{{user.position}}</td>
         <td>{{user.address}}</td>
         <td>{{user.phone}}</td>
-        <td>{{user.email}}</td>
+        <td>{{user.username}}</td>
     </tr>
     {% endfor %}
 </table>
+
+{% if user.position == 'director' or user.position == 'associate director' %}
+	<h2>Update</h2>
+	<form action="#" method='POST'>
+	    {%csrf_token%}
+	    <label for="">Input ID</label>
+	    <input type="text" name='upduser'>
+	    <label for="">New Address</label>
+		<input type="text" name='address'>
+	    <label for="">New Phone number</label>
+	    <input type="text" name='phone'>
+	    <button type="submit">Update</button>
+	</form>
+{% endif %}
+
+{% if user.position == 'director' %}
+	<h2>Delete</h2>
+	<form action="#" method='POST'>
+	    {%csrf_token%}
+	    <label for="">Input ID</label>
+	    <input type="text" name='deluser'>
+	    <button type="submit">Delete</button>
+	</form>
+
+	<p>Are you leader? Get fuck leader</p>
+
+	<h2>Create new user</h2>
+	<form action="/register">
+   		<button type="submit">Create</button>
+  	</form>
+
+{% endif %}
+
 
 </body>
 </html>

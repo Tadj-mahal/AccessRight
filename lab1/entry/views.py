@@ -4,14 +4,59 @@ from django.views.generic import TemplateView
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
 from django.contrib.auth import logout
-from main.models import Employee
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
-#from django.contrib.auth.forms import UserCreationForm
+from .models import User
 from .forms import UserCreateForm
-from django.contrib.auth.models import User
 # Create your views here.
 
+class List(TemplateView):
+    template_name = "users.html"
+
+    def get(self, request):
+        users = User.objects.all()
+        ctx = {
+            'users': users,
+        }
+        return render(request, self.template_name, ctx)
+        
+    def post(self, request):
+       template = "main_entry.html" 
+       if 'search' in request.POST:
+           template = "result.html"  
+           query = request.POST['search']
+           result_list = User.objects.filter(id = query)
+           if result_list.count() != 0:
+    	       	context = {
+    	       		'result_list': result_list,
+    	       		'query': query,
+    	       	}
+           else:
+           		context = {
+           			'empty': "Nothing founded. 404!",
+           			'query': query,
+           		}
+       
+
+       if 'deluser' in request.POST:
+           query = request.POST['deluser']
+           User.objects.filter(id = query).delete()
+           users = User.objects.all()
+           context = {
+                    'users': users,
+                } 
+ 
+       if 'upduser' in request.POST:
+           query = request.POST['upduser']
+           usr = User().objects.get(id = query)
+           usr.address = request.POST.get("address")
+           usr.phone  = request.POST.get("phone")
+           usr.save()
+           users = User.objects.all()
+           context = {
+            'users': users,
+            }
+       return render(request, template, context)
 
 class MainView(TemplateView):
 	template_name = "main_entry.html"
@@ -31,7 +76,7 @@ class LoginFormView(FormView):
 
 	template_name = "login.html"
 
-	success_url = "../../main"
+	success_url = "../"
 
 	def form_valid(self, form):
 
@@ -45,7 +90,7 @@ class LoginFormView(FormView):
 class LogoutView(View):
 	def get(self, request):
 		logout(request)
-		return HttpResponseRedirect("/entry/")
+		return HttpResponseRedirect("/#")
 
 class RegisterFormView(FormView):
     form_class = UserCreateForm
